@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INVex.Core", "INVex.Core\IN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevTestApp", "DevTestApp\DevTestApp.csproj", "{3F9B1102-DE1E-4F0A-AA39-D1A43A33D1EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevTestServerApp", "DevTestServerApp\DevTestServerApp.csproj", "{2D733E49-67C2-4A72-B677-89FCA3FC8584}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevTestServerApp", "DevTestServerApp\DevTestServerApp.csproj", "{2D733E49-67C2-4A72-B677-89FCA3FC8584}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D09BA63A-4694-4A69-BB5A-0B4D13515F75}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

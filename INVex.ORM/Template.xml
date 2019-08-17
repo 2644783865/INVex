@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ObjectModel PrimaryKey="Id">
+  <Fields>
+    <Property Name="Id" ValueType="int"/>
+    <Reference Name="Ref" RefType="%другой объект%"/>
+    <FixedList Name="Selectable">
+      <Item Index="1" Value="Строка"/>
+    </FixedList>
+    <Collection Name="Coll" ItemsType="IntField" IsUniversal="false" />
+  </Fields>
+  <Mapping Table="">
+    <Map Attribute="Id" Source="Id"/>
+  </Mapping>
+</ObjectModel>
+
+
+<!-- Дополнительные свойства (в планах)
+     IsIdenttity (на конкретный атрибут)
+     
+-->

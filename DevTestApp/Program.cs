@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml.Linq;
 using INVex.Core;
+using INVex.Core.Commands;
 using INVex.Core.Fields;
 using INVex.Core.Networking.Client;
 using INVex.Core.Objects;
@@ -25,7 +26,10 @@ namespace DevTestApp
 
             //SimpleClient.SendObject(model);
 
-            //SimpleAsyncClient.Connect();            
+            SimpleAsyncClient.Connect();
+            Command writeSomeText = new Command("WriteText");
+            writeSomeText.Parameters.Add("Text", "Sended text");
+            SimpleAsyncClient.SendCommand(writeSomeText);
             //AsyncClient.Send(model);
 
             Console.ReadKey();

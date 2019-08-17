@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Expressions\Logical\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\INVex.Common\INVex.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Template.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

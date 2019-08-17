@@ -1,7 +1,14 @@
 # INVex ORM
 
-Попытка в свою ORM, просто для развития.
+РџРѕРїС‹С‚РєР° РІ СЃРІРѕСЋ ORM, РїСЂРѕСЃС‚Рѕ РґР»СЏ СЂР°Р·РІРёС‚РёСЏ.
 
 # TODO:
-* CORE
-* Expressions 
+* ORM
+* Expressions
+* Queries
+* Commands
+* Actions
+* Scenarios
+
+# PROGRESS:
+----------

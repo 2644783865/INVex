@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using INVex.Common.Serialize.Base;
+using INVex.ORM.Holders;
 using INVex.ORM.Objects.Base;
 using INVex.ORM.Objects.Common;
 using INVex.ORM.Objects.Modify.Base;
@@ -186,17 +187,14 @@ namespace INVex.ORM.Objects
             throw new NotImplementedException();
         }
 
-        public static IObjectModel GetModel(ObjectModelKey modelKey)
+        public static IObjectModel GetModel(string modelName)
         {
-#warning доделать в первую очередь
-            //return Holders.Modify.ObjectModelsHolder.Current.GetCachedModel(modelKey);
-            throw new NotImplementedException();
+#warning not implemented
+            return ObjectModelsHolder.Current.GetCachedModel("");
         }
 
         public virtual void Pack(BinaryWriter writer)
         {
-            writer.Write(this.GetType().Name);
-
             throw new NotImplementedException();
         }
 

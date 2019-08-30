@@ -9,22 +9,24 @@ namespace INVex.ORM.Objects
 {
     public class ObjectModel : IObjectModel, IBinarySerializable
     {
-        public int Id { get; private set; }
+        public int Id { get; set; }
 
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
-        public string Description { get; private set; }
+        public string Description { get; set; }
+        public string InstanceTypeQualifiedName { get; set; }
 
         public ObjectModel()
         {
 
         }
 
-        public ObjectModel(int id, string name, string description)
+        public ObjectModel(int id, string name, string description, string instanceTypeQualifiedName)
         {
             this.Id = id;
             this.Name = name;
             this.Description = description;
+            this.InstanceTypeQualifiedName = instanceTypeQualifiedName;
         }
 
         public virtual void Pack(BinaryWriter writer)

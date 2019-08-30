@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\INVex.Core\INVex.Core.csproj" />
+    <ProjectReference Include="..\INVex.ORM\INVex.ORM.csproj" />
   </ItemGroup>
 
 </Project>

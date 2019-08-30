@@ -55,19 +55,12 @@ namespace INVex.ORM.Fields
 
         public virtual void Pack(BinaryWriter writer)
         {
-            writer.Write(this.GetType().Name);
-
-            byte[] valueBytes = SerializationTools.SerializeToBytes(this._value);
-
-            writer.Write(valueBytes.Length);
-            writer.Write(valueBytes);
+            throw new NotImplementedException();
         }
 
         public virtual void Unpack(BinaryReader reader)
         {
-            int length = reader.ReadInt32();
-
-            this._value = SerializationTools.DeserializeFromBytes(reader.ReadBytes(length));
+            throw new NotImplementedException();
         }
     }
 }

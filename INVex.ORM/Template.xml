@@ -2,7 +2,7 @@
 <ObjectModel PrimaryKey="Id">
   <Fields>
     <Property Name="Id" ValueType="int"/>
-    <Reference Name="Ref" RefType="%другой объект%"/>
+    <Reference Name="Ref" RefModel="%другой объект%"/>
     <FixedList Name="Selectable">
       <Item Index="1" Value="Строка"/>
     </FixedList>

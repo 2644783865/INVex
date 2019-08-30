@@ -6,7 +6,6 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using INVex.ORM.Expressions.Modify;
 using INVex.ORM.Expressions.Queries;
 using INVex.ORM.Objects.Base;
 using INVex.ORM.Objects.Modify;
@@ -155,21 +154,6 @@ namespace INVex.ORM.Objects
 
         public static new IObjectInstance GetInstance(IObjectModel model, object primaryKey)
         {
-            ObjectInstance tempInstance = new ObjectInstance(model);
-
-            new Query()
-            {
-                ForObject = model.Name,
-                Expresssion =
-                new QueryExpression
-                (
-                    model,
-                    new ValueCondition
-                    (
-                        new AttributePath(new AttributeStep(tempInstance.PrimaryKey.Name)), Expressions.Base.OperatorType.Equal, primaryKey
-                    )
-                )
-            }.Run();
             return null;
         }
 

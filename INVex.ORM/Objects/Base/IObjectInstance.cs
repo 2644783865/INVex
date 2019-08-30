@@ -11,5 +11,6 @@ namespace INVex.ORM.Objects.Base
         Dictionary<string, IAttributeModel> Attributes { get; }
         Dictionary<IAttributePath, IAttributeModel> RequiredAttributes { get; }
         IAttributeModel PrimaryKey { get; }
+        IAttributeModel GetAttributeByPath(IAttributePath path);
     }
 }

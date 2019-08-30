@@ -19,6 +19,8 @@ namespace INVex.ORM.Objects
         public IAttributeMapping Mapping { get; set; }
         public IObjectInstance Owner { get; protected set; }
 
+        public object Value { get { return Field.Value; } }
+
         protected XDocument AttributeXElement;
 
         public AttributeInstance(string name, string description, string attributeType, IObjectInstance owner)

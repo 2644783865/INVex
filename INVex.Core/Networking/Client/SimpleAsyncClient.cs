@@ -95,7 +95,8 @@ namespace INVex.Core.Networking.Client
             }
         }
 
-        public static void Send(ICommandBase command)
+
+        public static void SendCommand(ICommandBase command)
         {
             byte[] binaryData;
             StateObject state = new StateObject();
@@ -103,15 +104,14 @@ namespace INVex.Core.Networking.Client
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (BinaryWriter writer = new BinaryWriter(ms))
+                using (BinaryWriter writer = new BinaryWriter(ms, Encoding.ASCII))
                 {
                     SimpleSerializer.PackObject(writer, command);
                     binaryData = ms.ToArray();
                 }
             }
             // Begin sending the data to the remote device.  
-            clientConnection.BeginSend(binaryData, 0, binaryData.Length, 0,
-                    new AsyncCallback(SendCallback), clientConnection);
+            clientConnection.BeginSend(binaryData, 0, binaryData.Length, 0, new AsyncCallback(SendCallback), clientConnection);
         }
 
         private static void SendCallback(IAsyncResult ar)

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace INVex.Core.Commands.Base
 {
-    public interface ICommandNotifyHandler
+    public interface ICommandNotifyProcessor
     {
         void BeforeExecute(ICommandBase command);
         void AfterExecute(ICommandBase command);

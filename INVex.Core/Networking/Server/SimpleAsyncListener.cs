@@ -111,7 +111,7 @@ namespace INVex.Core.Networking.Server
                     IBinarySerializable serializable;
                     using (MemoryStream ms = new MemoryStream(state.buffer, 0, bytesRead))
                     {
-                        using (BinaryReader reader = new BinaryReader(ms))
+                        using (BinaryReader reader = new BinaryReader(ms, Encoding.ASCII))
                         {
                             serializable = SimpleSerializer.UnpackObject(reader);
                         }
@@ -119,7 +119,7 @@ namespace INVex.Core.Networking.Server
 
                     if(serializable is ICommandBase)
                     {
-
+                        ((ICommandBase)serializable).Execute();
                     }
                     else
                     {

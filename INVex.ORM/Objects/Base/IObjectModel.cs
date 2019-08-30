@@ -6,8 +6,9 @@ namespace INVex.ORM.Objects.Base
 {
     public interface IObjectModel
     {
-        int Id { get; }
-        string Name { get; }
-        string Description { get; }
+        int Id { get; set; }
+        string Name { get; set; }
+        string Description { get; set; }
+        string InstanceTypeQualifiedName { get; set; }
     }
 }

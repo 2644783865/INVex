@@ -12,42 +12,35 @@ namespace INVex.ORM.Fields
     /// </summary>
     public class ReferenceField : ObjectField, IReferenceField
     {
-        private bool referenceLoaded = false;
         private ObjectInstance cachedInstance = null;
 
         public virtual ObjectInstance Reference
         {
             get
             {
-                if (!this.referenceLoaded)
+                if (this.cachedInstance == null)
                 {
                     //TODO: Доделать
-                    this.Model = ObjectInstance.GetModel(new Objects.Common.ObjectModelKey(this.ObjectType));
-                    this.cachedInstance = (ObjectInstance)ObjectInstance.GetInstance(this.Model, this.Value);
-                    this.referenceLoaded = true;
+                    this.ReferenceModel = ObjectInstance.GetModel(this.ReferenceObjectModelName);
+                    this.cachedInstance = (ObjectInstance)ObjectInstance.GetInstance(this.ReferenceModel, this.Value);
                 }
 
                 return this.cachedInstance;
             }
         }
 
-        /// <summary>
-        /// Тип ссылочного объекта
-        /// </summary>
-        public string ObjectType { get; }
-        /// <summary>
-        /// Модель ссылочного объекта
-        /// </summary>
-        public IObjectModel Model { get; protected set; }
+        public string ReferenceObjectModelName { get; }
+ 
+        public IObjectModel ReferenceModel { get; protected set; }
 
         public ReferenceField()
         {
 
         }
 
-        public ReferenceField(string objectType)
+        public ReferenceField(string objectModelName)
         {
-            this.ObjectType = objectType;
+            this.ReferenceObjectModelName = objectModelName;
         }
     }
 }

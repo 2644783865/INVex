@@ -7,27 +7,40 @@ namespace INVex.Core.Commands
 {
     public class ExecutionManager : ExecutionManagerBase
     {
+        private static ExecutionManager instance;
+
+        private ExecutionManager()
+        { }
+
+        public static ExecutionManager Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new ExecutionManager();
+                return instance;
+            }
+        }
+
         public override ExecutionResult ProcessCommand(ICommandBase command)
         {
-            ExecutionResult result;
+            ExecutionResult result = null;
+            ICommandProcessor commandProcessor = this.CommandHandlers[command.Name];
             if (this.CommandNotifiers.ContainsKey(command.Name))
             {
-                ICommandNotifyHandler notifyHandler = this.CommandNotifiers[command.Name];
+                ICommandNotifyProcessor notifyHandler = this.CommandNotifiers[command.Name];
 
                 notifyHandler.BeforeExecute(command);
-                result = command.Execute();
+                commandProcessor.Execute(command);
+                //result = commandProcessor.Execute(command);
                 notifyHandler.AfterExecute(command);
             }
             else
             {
-                result = command.Execute();
+                //result = commandProcessor.Execute(command);
+                commandProcessor.Execute(command);
             }
             return result;
-        }
-
-        public override void RegisterCommandProcessor(ICommandProcessor commandProcessor)
-        {
-            //this.CommandHandlers.Add()
         }
     }
 }

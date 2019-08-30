@@ -12,3 +12,10 @@
     <Map Attribute="Id" Source="Id"/>
   </Mapping>
 </ObjectModel>
+
+
+<!-- Дополнительные свойства (в планах)
+     IsIdenttity
+     IsPrimaryKey
+     
+-->

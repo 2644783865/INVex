@@ -7,7 +7,7 @@ namespace INVex.ORM.Fields.Base
 {
     public interface IReferenceField
     {
-        string ObjectType { get; }
-        IObjectModel Model { get; }
+        string ReferenceObjectModelName { get; }
+        IObjectModel ReferenceModel { get; }
     }
 }

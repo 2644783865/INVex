@@ -4,32 +4,32 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using INVex.Core.Holders.Base;
+using INVex.Core.Holders;
+using INVex.Core.Holders.Modify;
+using INVex.Core.Commands.Common;
+using INVex.Core.Common;
 
 namespace INVex.Core.Commands.Handlers
 {
-    public class AutoCommandProcessor : ICommandProcessor
+    public class AutoCommandProcessor : BaseCommandProcessor
     {
         public AutoCommandProcessor()
         {
             foreach(CommandProcessorAttribute attributeInfo in this.GetType().GetCustomAttributes())
             {
-                // TODO Придумать абстракцию какуюнить, а то завязывать всё на одном классе хреново.
+                CommandProcessorKey key = new CommandProcessorKey(attributeInfo.Name, attributeInfo.ObjectModelName);
+
+                ((CommandsHolder)HoldersCollection.Current[CommandsHolder.HolderName]).RegisterCommandProcessor(key, this);
             }
         }
 
-        public void Prepare(ICommandBase command)
+        public static void RegisterProcessors()
         {
-            throw new NotImplementedException();
-        }
-
-        public void Execute(ICommandBase command)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void PostExecute(ICommandBase command)
-        {
-            throw new NotImplementedException();
+            foreach (Type t in AssemblyUtils.GetTypes(typeof(AutoCommandProcessor)))
+            {
+                Activator.CreateInstance(t);
+            }
         }
     }
 }

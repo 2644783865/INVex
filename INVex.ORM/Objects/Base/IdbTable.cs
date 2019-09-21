@@ -6,8 +6,8 @@ namespace INVex.ORM.Objects.Base
 {
     public interface IDbTable
     {
+        string FullName { get; }
         string TableName { get; }
         string Prefix { get; }
-        string DbName { get; }
     }
 }

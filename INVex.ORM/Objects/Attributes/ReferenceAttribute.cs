@@ -1,13 +1,12 @@
 ﻿using INVex.ORM.Fields;
-using INVex.ORM.Objects;
+using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
-using INVex.ORM.Objects.Modify.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
 
-namespace INVex.ORM.Objects.Modify
+namespace INVex.ORM.Objects.Attributes
 {
     public class ReferenceAttribute : AttributeInstance, IReferenceAttribute
     {
@@ -16,6 +15,19 @@ namespace INVex.ORM.Objects.Modify
             get
             {
                 return (ReferenceField)base.Field;
+            }
+        }
+
+        public new IObjectInstance Value
+        {
+            get
+            {
+                if (this.Field.WasReaded)
+                {
+                    return this.Field.Reference;
+                }
+
+                return null;
             }
         }
 

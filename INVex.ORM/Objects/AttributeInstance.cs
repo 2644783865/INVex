@@ -7,6 +7,7 @@ using INVex.Common.Serialize.Base;
 using INVex.ORM.Fields.Base;
 using INVex.ORM.Fields;
 using INVex.ORM.Objects.Base;
+using INVex.ORM.Objects.Attributes.Base;
 
 namespace INVex.ORM.Objects
 {
@@ -18,10 +19,10 @@ namespace INVex.ORM.Objects
         public string Type { get; protected set; }
         public IAttributeMapping Mapping { get; set; }
         public IObjectInstance Owner { get; protected set; }
+        public Dictionary<string, object> CustomFlags { get; set; } = new Dictionary<string, object>();
 
-        public object Value { get { return Field.Value; } }
+        public object Value { get { return this.Field.Value; } }
 
-        protected XDocument AttributeXElement;
 
         public AttributeInstance(string name, string description, string attributeType, IObjectInstance owner)
         {
@@ -32,19 +33,22 @@ namespace INVex.ORM.Objects
 
             this.PrepareParse();
             this.Parse();
+            this.PostParse();
+
             this.CreateField();
         }
 
-        /// <summary>
-        /// Подготавительная стадия для парсинга.
-        /// Нужна для случая, если нужно отказаться от XML
-        /// </summary>
         protected virtual void PrepareParse()
         {
-            this.AttributeXElement = XDocument.Parse(this.Description);
+            
         }
 
         protected virtual void Parse()
+        {
+
+        }
+
+        protected virtual void PostParse()
         {
 
         }

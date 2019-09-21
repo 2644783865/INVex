@@ -1,18 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ObjectModel PrimaryKey="Id">
+<ObjectModel Name="TestModel" PrimaryKey="Id">
   <Fields>
     <Property Name="Id" ValueType="int"/>
-    <Reference Name="Ref" RefModel="%другой объект%"/>
+    <Reference Name="Ref" RefModel="RefModel"/>
     <FixedList Name="Selectable">
       <Item Index="1" Value="Строка"/>
     </FixedList>
     <Collection Name="Coll" ItemsType="IntField" IsUniversal="false" />
   </Fields>
-  <Mapping Table="">
+  <Mapping Prefix="" Table="">
     <Map Attribute="Id" Source="Id"/>
   </Mapping>
 </ObjectModel>
-
 
 <!-- Дополнительные свойства (в планах)
      IsIdenttity (на конкретный атрибут)

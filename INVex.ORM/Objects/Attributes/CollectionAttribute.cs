@@ -1,11 +1,11 @@
 ﻿using INVex.ORM.Fields;
-using INVex.ORM.Objects;
 using INVex.ORM.Objects.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 
-namespace INVex.ORM.Objects.Modify
+namespace INVex.ORM.Objects.Attributes
 {
     public class CollectionAttribute : AttributeInstance
     {
@@ -15,14 +15,16 @@ namespace INVex.ORM.Objects.Modify
 
         protected override void Parse()
         {
-            if (this.AttributeXElement.Root.Attribute("IsUniversal") != null)
+            XDocument attributeXElement = XDocument.Parse(this.Description);
+
+            if (attributeXElement.Root.Attribute("IsUniversal") != null)
             {
-                this.isUniversalCollection = bool.Parse(this.AttributeXElement.Root.Attribute("IsUniversal").Value);
+                this.isUniversalCollection = bool.Parse(attributeXElement.Root.Attribute("IsUniversal").Value);
             }
 
-            if (this.AttributeXElement.Root.Attribute("ItemsType") != null)
+            if (attributeXElement.Root.Attribute("ItemsType") != null)
             {
-                this.collectionItemsType = this.AttributeXElement.Root.Attribute("ItemsType").Value;
+                this.collectionItemsType = attributeXElement.Root.Attribute("ItemsType").Value;
             }
         }
 

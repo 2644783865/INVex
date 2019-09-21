@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Expressions\Logical\" />
     <Folder Include="Expressions\Modify\" />
   </ItemGroup>
 

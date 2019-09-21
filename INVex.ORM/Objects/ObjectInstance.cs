@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using INVex.Common.Serialize.Base;
+using INVex.ORM.Expressions.Objects;
 using INVex.ORM.Holders;
+using INVex.ORM.Objects.Attributes;
+using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
 using INVex.ORM.Objects.Common;
-using INVex.ORM.Objects.Modify.Base;
 
 namespace INVex.ORM.Objects
 {
@@ -32,7 +34,7 @@ namespace INVex.ORM.Objects
         /// <summary>
         /// Attributes to read from database first
         /// </summary>
-        public Dictionary<IAttributePath, IAttributeModel> RequiredAttributes { get; protected set; }
+        public Dictionary<IAttributePath, IAttributeModel> RequiredAttributes { get; protected set; } = new Dictionary<IAttributePath, IAttributeModel>();
         #endregion
 
         public bool IsInherited { get; protected set; }
@@ -40,13 +42,15 @@ namespace INVex.ORM.Objects
         /// <summary>
         /// Object name (from model)
         /// </summary>
-        public string Name
+        public string ModelName
         {
             get
             {
                 return this.Model.Name;
             }
         }
+
+        public bool IsNew { get; set; }
 
         public ObjectInstance()
         {
@@ -62,38 +66,28 @@ namespace INVex.ORM.Objects
             this.AfterParse();
         }
 
+        #region parse
+
         protected virtual void BeforeParse()
         {
 
         }
-
-        protected virtual void AfterParse()
-        {
-
-        }
-
         public virtual void Parse()
         {
             throw new NotImplementedException();
         }
 
+        protected virtual void AfterParse()
+        {
+            this.DefineRequiredAttributes();
+        }
+
+
+        #endregion
+
         protected virtual IObjectModel FindInheritedModel(string name)
         {
             throw new NotImplementedException();
-        }
-
-        protected virtual IAttributeModel ReadAttribute(IAttributePath path)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual IAttributeMapping CreateAttributeMapping(string attributeName, string sourceName)
-        {
-            if (!this.Attributes.ContainsKey(attributeName))
-            {
-                throw new Exception(string.Format("Маппирование объекта {0} неверно. Используется атрибут, который не указан в секции Fields ({1})", this.Name, attributeName));
-            }
-            return new AttributeMapping(attributeName, sourceName);
         }
 
         protected virtual IAttributeModel CreateAttribute(string attributeName, string attributeType, string description)
@@ -101,34 +95,9 @@ namespace INVex.ORM.Objects
             throw new NotImplementedException();
         }
 
-        public virtual IAttributeModel GetAttributeByPath(IAttributePath path)
+        public virtual IAttributeModel GetAttribute(IAttributePath path)
         {
-            foreach (IAttributeStep step in path.AttributeSteps)
-            {
-                IAttributeStep currentStep = path.AttributeSteps.Dequeue();
-                if (!this.Attributes.ContainsKey(currentStep.Name))
-                {
-                    throw new Exception(string.Format("В объекте {0} не найден атрибут с именем {1}", currentStep.Name, this.Name));
-                }
-
-                if (path.AttributeSteps.Count > 0)
-                {
-                    if (this.Attributes[currentStep.Name] is IReferenceAttribute)
-                    {
-                        return ((IReferenceAttribute)this.Attributes[currentStep.Name]).Field.Reference.GetAttributeByPath(path);
-                    }
-                    else
-                    {
-                        throw new Exception("Ожидалося атрибут с типом Reference");
-                    }
-                }
-                else
-                {
-                    return this.GetAttribute(currentStep.Name);
-                }
-            }
-
-            return null;
+            return PathProcessor.ProcessPath(path, this);
         }
 
         public virtual IAttributeModel GetAttribute(string attributeName)
@@ -137,12 +106,36 @@ namespace INVex.ORM.Objects
             {
                 return this.Attributes[attributeName];
             }
-            throw new Exception(string.Format("В описании объекта {0} не найден атрибут с именем {1}", this.Name, attributeName));
+            throw new Exception(string.Format("В описании объекта {0} не найден атрибут с именем {1}", this.ModelName, attributeName));
         }
 
-        public virtual T GetAttributeValue<T>(string attributeName)
+        protected virtual IAttributeMapping CreateAttributeMapping(string attributeName, string sourceName)
         {
-            return this.Attributes[attributeName].Field.GetValue<T>();
+            if (!this.Attributes.ContainsKey(attributeName))
+            {
+                throw new Exception(string.Format("Маппирование объекта {0} неверно. Используется атрибут, который не указан в секции Fields ({1})", this.ModelName, attributeName));
+            }
+            return new AttributeMapping(attributeName, sourceName);
+        }
+
+        protected virtual void DefineRequiredAttributes()
+        {
+            this.AddRequiredAttribute(this.PrimaryKey);
+        }
+
+        public void AddRequiredAttribute(IAttributeModel attributeModel)
+        {
+            if(attributeModel.Owner.Model.Id != this.Model.Id)
+            {
+                throw new Exception("Try to add unknown attribute to required");
+            }
+            this.AddRequiredAttribute(new APath(new AStep(attributeModel.Name)));
+        }
+
+        public virtual void AddRequiredAttribute(IAttributePath path)
+        {
+            IAttributeModel tempModel = this.GetAttribute(path);
+            this.RequiredAttributes.Add(path, tempModel);
         }
 
         /// <summary>
@@ -152,9 +145,25 @@ namespace INVex.ORM.Objects
         /// <param name="value">Значение</param>
         public virtual void SetAttributeValue(IAttributePath path, object value)
         {
-            this.GetAttributeByPath(path).Field.SetValue(value);
+            this.GetAttribute(path).Field.SetValue(value);
         }
 
+        public virtual void SetAttributeValue(string attributeName, object value)
+        {
+            this.Attributes[attributeName].Field.SetValue(value);
+        }
+
+        public virtual IAttributeModel GetAttributeByMappingColumn(string columnName)
+        {
+            foreach(IAttributeModel model in this.Attributes.Values)
+            {
+                if(model.Mapping.ColumnName == columnName)
+                {
+                    return model;
+                }
+            }
+            throw new Exception("Attribute not found");
+        }
 
         public virtual void CopyAttributesFrom(IObjectInstance instance)
         {
@@ -164,24 +173,23 @@ namespace INVex.ORM.Objects
             }
         }
 
-
-        /// <summary>
-        /// Создает дубликат объекта, копирует все поля, значения.
-        /// </summary>
-        /// <returns></returns>
-        public ObjectInstance DuplicateInstance()
+        public virtual void Save()
         {
-            ObjectInstance newInstance = new ObjectInstance(this.Model);
-            newInstance.Attributes = new Dictionary<string, IAttributeModel>(this.Attributes);
+            ObjectModelsHolder.Current.Holder.SaveObject(this);
+        }
+
+        public static IObjectInstance CreateInstance(string modelName)
+        {
+            IObjectInstance newInstance = ObjectModelsHolder.Current.Holder.CreateInstance(modelName);
+            newInstance.IsNew = true;
             return newInstance;
         }
 
-        public static ObjectInstance CreateInstance(IObjectModel model)
+        public static IObjectInstance CreateInstance(IObjectModel model)
         {
-            return new ObjectInstance(model);
+             return ObjectInstance.CreateInstance(model.Name);
         }
 
-        // TODO: Доделать
         public static IObjectInstance GetInstance(IObjectModel model, object primaryKey)
         {
             throw new NotImplementedException();
@@ -189,8 +197,7 @@ namespace INVex.ORM.Objects
 
         public static IObjectModel GetModel(string modelName)
         {
-#warning not implemented
-            return ObjectModelsHolder.Current.GetCachedModel("");
+            return ObjectModelsHolder.Current.Holder.GetModel(modelName);
         }
 
         public virtual void Pack(BinaryWriter writer)

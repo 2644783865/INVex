@@ -7,8 +7,9 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using INVex.ORM.Expressions.Queries;
+using INVex.ORM.Objects.Attributes;
+using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
-using INVex.ORM.Objects.Modify;
 
 namespace INVex.ORM.Objects
 {
@@ -38,20 +39,17 @@ namespace INVex.ORM.Objects
             {
                 XDocument modelDoc = XDocument.Parse(this.Model.Description);
 
-                if (modelDoc.Root.Attribute("Inherits") != null)
-                {
-                    this.IsInherited = true;
-                    // TODO: Возможно, в теории, можно так и оставить, если загружать сущности по Id asc. Не представляю себе ситуации, когда нужно наследовать
-                    // сущность с Id 5 у сущности Id 2
-                    string inheritedModelName = modelDoc.Root.Attribute("Inherits").Value;
+                string pkName = modelDoc.Root.Attribute("PrimaryKey").Value;
 
-                    // Если мы наследуем модель, то секция <Mapping> должна быть
-                    // а) Исключена
-                    // б) Внесена, но только с полями для новых атрибутов и ссылающиеся на другую таблицу
-                    // TODO: Доделать
-                    IObjectModel inherited = this.FindInheritedModel(inheritedModelName);
-                    this.CopyAttributesFrom(new ObjectInstance(inherited));
-                }
+                // TODO: Сделать что-то с этим
+                //if (modelDoc.Root.Attribute("Inherits") != null)
+                //{
+                //    this.IsInherited = true;
+                //    string inheritedModelName = modelDoc.Root.Attribute("Inherits").Value;
+
+                //    IObjectModel inherited = this.FindInheritedModel(inheritedModelName);
+                //    this.CopyAttributesFrom(new ObjectInstance(inherited));
+                //}
 
                 List<XElement> fields = modelDoc.XPathSelectElements("ObjectModel/Fields/*").ToList();
                 List<XElement> mapping = modelDoc.XPathSelectElements("ObjectModel/Mapping/*").ToList();
@@ -63,12 +61,12 @@ namespace INVex.ORM.Objects
 
                     if (string.IsNullOrEmpty(attributeName))
                     {
-                        throw new Exception(string.Format("В описании объекта {0} есть неназванный атрибут", this.Name));
+                        throw new Exception(string.Format("В описании объекта {0} есть неназванный атрибут", this.ModelName));
                     }
 
                     if (this.Attributes.ContainsKey(attributeName))
                     {
-                        throw new Exception(string.Format("Атрибут с именем {0} уже находится в коллекции аттрибутов объекта {1}", attributeName, this.Name));
+                        throw new Exception(string.Format("Атрибут с именем {0} уже находится в коллекции аттрибутов объекта {1}", attributeName, this.ModelName));
                     }
 
                     string attributeType = singleField.Name.LocalName;
@@ -80,10 +78,20 @@ namespace INVex.ORM.Objects
                     }
 
                     this.Attributes.Add(attributeName, newAttributeInstance);
+
+                    if(newAttributeInstance.Name == pkName)
+                    {
+                        this.PrimaryKey = this.Attributes[pkName];
+                    }
                 }
                 #endregion
 
                 #region Attribute mappings creation. Section "MAPPING"
+
+                XElement mappingSection = modelDoc.XPathSelectElement("ObjectModel/Mapping");
+
+                this.Table = new DbTableInfo(mappingSection.Attribute("Table").Value, mappingSection.Attribute("Prefix") == null ? string.Empty : mappingSection.Attribute("Prefix").Value);
+
                 // TODO: Подумать над случаем, если мы наследуем какую либо модель.
                 foreach (XElement singleMapping in mapping)
                 {
@@ -92,7 +100,7 @@ namespace INVex.ORM.Objects
                     if (src == null || attrName == null)
                     {
                         IXmlLineInfo mappingInfo = singleMapping;
-                        throw new Exception(string.Format("Маппирование объекта {0} неверно. Строка №{1}", this.Name, mappingInfo.LineNumber));
+                        throw new Exception(string.Format("Маппирование объекта {0} неверно. Строка №{1}", this.ModelName, mappingInfo.LineNumber));
                     }
 
                     string attributeName = attrName.Value as string;
@@ -139,7 +147,7 @@ namespace INVex.ORM.Objects
                     return new CollectionAttribute(attributeName, description, "Collection", this);
 
                 default:
-                    throw new Exception(string.Format("В описании объекта {0} атрибут с именем {1} имеет неизвестный тип {2}", this.Name, attributeName, attributeType));
+                    throw new Exception(string.Format("В описании объекта {0} атрибут с именем {1} имеет неизвестный тип {2}", this.ModelName, attributeName, attributeType));
             }
         }
 

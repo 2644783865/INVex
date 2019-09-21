@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace INVex.ORM.Objects.Modify.Base
+namespace INVex.ORM.Objects.Attributes.Base
 {
     public interface IReferenceAttribute
     {

@@ -1,4 +1,5 @@
 ﻿using INVex.ORM.Fields.Base;
+using INVex.ORM.Holders;
 using INVex.ORM.Objects;
 using INVex.ORM.Objects.Base;
 using System;
@@ -12,17 +13,31 @@ namespace INVex.ORM.Fields
     /// </summary>
     public class ReferenceField : ObjectField, IReferenceField
     {
-        private ObjectInstance cachedInstance = null;
+        private IObjectInstance cachedInstance = null;
 
-        public virtual ObjectInstance Reference
+        public new IObjectInstance Value
         {
             get
             {
+                return this.Reference;
+            }
+        }
+
+        public virtual IObjectInstance Reference
+        {
+            get
+            {
+                if(base.Value == null)
+                {
+                    return ObjectModelsHolder.Current.Holder.CreateInstance(this.ReferenceObjectModelName);
+                }
+
                 if (this.cachedInstance == null)
                 {
                     //TODO: Доделать
-                    this.ReferenceModel = ObjectInstance.GetModel(this.ReferenceObjectModelName);
-                    this.cachedInstance = (ObjectInstance)ObjectInstance.GetInstance(this.ReferenceModel, this.Value);
+                    this.ReferenceModel = ObjectModelsHolder.Current.Holder.GetModel(this.ReferenceObjectModelName);
+                    // base.Value = Object PrimaryKey
+                    this.cachedInstance = ObjectModelsHolder.Current.Holder.GetInstance(this.ReferenceModel, base.Value);
                 }
 
                 return this.cachedInstance;

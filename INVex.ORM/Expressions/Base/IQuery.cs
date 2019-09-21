@@ -6,8 +6,8 @@ namespace INVex.ORM.Expressions.Base
 {
     public interface IQuery
     {
+        string QueryString { get;  }
         bool NeedTransaction { get; set; }
-        string QueryString { get; set; }
         Dictionary<string, object> QueryParameters { get; set; }
         object Execute();
     }

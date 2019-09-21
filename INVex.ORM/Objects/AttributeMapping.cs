@@ -1,4 +1,4 @@
-﻿using INVex.ORM.Objects.Base;
+﻿using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Common;
 using System;
 using System.Collections.Generic;

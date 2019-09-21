@@ -7,7 +7,7 @@ namespace INVex.ORM.Expressions.Queries
 {
     public class RawQuery : BaseQuery
     {
-        public override string QueryString { get; set; }
+        public override string QueryString { get; protected set; }
         public override bool NeedTransaction { get; set; }
         public override Dictionary<string, object> QueryParameters { get; set; }
 
@@ -17,11 +17,6 @@ namespace INVex.ORM.Expressions.Queries
             this.QueryString = query;
             this.NeedTransaction = transaction;
             this.QueryParameters = queryParams;
-        }
-
-        public override object Execute()
-        {
-            return DbConnectionHolder.Current.ExecuteQuery(this);
         }
     }
 }

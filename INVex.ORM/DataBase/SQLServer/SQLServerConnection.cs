@@ -1,4 +1,5 @@
 ﻿using INVex.ORM.DataBase.Base;
+using INVex.ORM.DataBase.Common;
 using INVex.ORM.Expressions.Base;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace INVex.ORM.DataBase.SQLServer
 
         public object ExecuteQuery(IQuery query)
         {
-            SQLExecutionResult result = new SQLExecutionResult();
+            ExecutionResult result = new ExecutionResult();
             SqlTransaction transaction = null;
 
             bool hasErrors = false;
@@ -45,12 +46,9 @@ namespace INVex.ORM.DataBase.SQLServer
                     transaction = sqlConnection.BeginTransaction();
                 }
 
-                SqlCommand command = sqlConnection.CreateCommand();
+                SqlCommand command = new SqlCommand(query.QueryString, sqlConnection, transaction);
 
-                command.CommandText = query.QueryString;
-                result.Query = query.QueryString;
-
-                if(query.QueryParameters != null)
+                if (query.QueryParameters != null)
                 {
                     foreach (KeyValuePair<string, object> pair in query.QueryParameters)
                     {
@@ -63,8 +61,8 @@ namespace INVex.ORM.DataBase.SQLServer
                     {
                         while (dataReader.Read())
                         {
-                            SQLRow row = new SQLRow();
-                            for(int i = 0; i < dataReader.FieldCount; i++)
+                            RowResult row = new RowResult();
+                            for (int i = 0; i < dataReader.FieldCount; i++)
                             {
                                 row.Add(dataReader.GetName(i), dataReader.GetValue(i));
                             }

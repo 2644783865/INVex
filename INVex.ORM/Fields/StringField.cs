@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using INVex.ORM.Fields.Base;
 
 namespace INVex.ORM.Fields
 {
@@ -32,5 +33,33 @@ namespace INVex.ORM.Fields
         {
             return field.Value;
         }
+
+        public static bool operator ==(StringField a, StringField b)
+        {
+            return a.Value == b.Value;
+        }
+
+        public static bool operator !=(StringField a, StringField b)
+        {
+            return a.Value != b.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is StringField field &&
+                   base.Equals(obj) &&
+                   this.Value == field.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), this.Value);
+        }
+
+        public override bool Equals(IBaseField other)
+        {
+            return (StringField)other == this;
+        }
+
     }
 }

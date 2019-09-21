@@ -1,11 +1,11 @@
 ﻿using INVex.ORM.Fields;
-using INVex.ORM.Objects;
 using INVex.ORM.Objects.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 
-namespace INVex.ORM.Objects.Modify
+namespace INVex.ORM.Objects.Attributes
 {
     public class PropertyAttribute : AttributeInstance
     {
@@ -15,7 +15,14 @@ namespace INVex.ORM.Objects.Modify
 
         protected override void Parse()
         {
-            this.ValueType = this.AttributeXElement.Root.Attribute("ValueType").Value;
+            XDocument attributeXElement = XDocument.Parse(this.Description);
+
+            if(attributeXElement.Root.Attribute("ValueType") == null)
+            {
+                throw new Exception("Attribute should have some type (see 'ValueType' attribute)");
+            }
+
+            this.ValueType = attributeXElement.Root.Attribute("ValueType").Value;
         }
 
         public override void CreateField()
@@ -34,6 +41,13 @@ namespace INVex.ORM.Objects.Modify
                 case "float":
                 case "double":
                     this.Field = new DecimalField();
+                    break;
+                case "date":
+                case "datetime":
+                    this.Field = new DateField();
+                    break;
+                case "guid":
+                    this.Field = new GuidField();
                     break;
                 default:
                     base.CreateField();

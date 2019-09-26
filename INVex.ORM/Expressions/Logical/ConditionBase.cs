@@ -1,4 +1,5 @@
 ﻿using INVex.ORM.Expressions.Base;
+using INVex.ORM.Expressions.Modify;
 using INVex.ORM.Expressions.Objects;
 using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
@@ -19,6 +20,14 @@ namespace INVex.ORM.Expressions.Logical
 
         public abstract bool IsTrue();
 
-        public abstract string ToSql();
+        public virtual SqlComputedString ToSql()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetOwner(IObjectInstance owner)
+        {
+            this.Owner = owner;
+        }
     }
 }

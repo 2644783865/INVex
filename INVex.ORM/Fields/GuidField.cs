@@ -21,5 +21,10 @@ namespace INVex.ORM.Fields
         public GuidField()
         {
         }
+
+        public void NewGuid()
+        {
+            this.SetValue(Guid.NewGuid());
+        }
     }
 }

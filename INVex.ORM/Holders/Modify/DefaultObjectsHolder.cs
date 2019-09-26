@@ -1,7 +1,10 @@
 ﻿using INVex.ORM.Common;
 using INVex.ORM.DataBase.Common;
 using INVex.ORM.Exceptions;
+using INVex.ORM.Expressions.Logical;
+using INVex.ORM.Expressions.Modify;
 using INVex.ORM.Expressions.Queries;
+using INVex.ORM.Fields;
 using INVex.ORM.Holders.Base;
 using INVex.ORM.Objects;
 using INVex.ORM.Objects.Attributes.Base;
@@ -57,12 +60,26 @@ namespace INVex.ORM.Holders.Modify
 
         public IObjectInstance GetInstance(string modelName, object primaryKey)
         {
-            throw new NotImplementedException();
+            IObjectInstance instance = this.CreateInstance(modelName);
+            ObjectQuery query = new ObjectQuery(modelName)
+            {
+                Criteria = new Criteria(new ValueCondition(instance.PrimaryKey, primaryKey)),
+                Top = 2
+            };
+
+            List<IObjectInstance> queryResult = query.Execute();
+
+            if (queryResult.Count > 1)
+            {
+                throw new Exception("В выборке более одного объекта");
+            }
+
+            return (IObjectInstance)queryResult[0];
         }
 
         public IObjectInstance GetInstance(IObjectModel model, object primaryKey)
         {
-            throw new NotImplementedException();
+            return this.GetInstance(model.Name, primaryKey);
         }
 
         public IObjectModel GetModel(string modelName)
@@ -116,6 +133,11 @@ namespace INVex.ORM.Holders.Modify
 
                 if (instance.IsNew)
                 {
+                    if(instance.PrimaryKey.Field is GuidField)
+                    {
+                        ((GuidField)instance.PrimaryKey.Field).NewGuid();
+                    }
+
                     if (!attrIsIdentity)
                     {
                         if(attrModel.Value == null)

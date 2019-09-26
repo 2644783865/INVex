@@ -20,28 +20,5 @@ namespace INVex.ORM.Fields
         {
             this.Value = 0;
         }
-
-        public static bool operator ==(DecimalField a, DecimalField b)
-        {
-            return a.Value == b.Value;
-        }
-
-        public static bool operator !=(DecimalField a, DecimalField b)
-        {
-            return a.Value != b.Value;
-        }
-
-#warning Возможно проблемы. Нужно проверить.
-        public override bool Equals(object obj)
-        {
-            return obj is DecimalField field &&
-                   this.Value == field.Value;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-
-        }
     }
 }

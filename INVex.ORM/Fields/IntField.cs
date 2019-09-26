@@ -27,27 +27,5 @@ namespace INVex.ORM.Fields
         {
             this.Value = value;
         }
-
-        public static bool operator ==(IntField a, IntField b)
-        {
-            return a.Value == b.Value;
-        }
-
-        public static bool operator !=(IntField a, IntField b)
-        {
-            return a.Value != b.Value;
-        }
-
-#warning Возможно проблемы. Нужно проверить.
-        public override bool Equals(object obj)
-        {
-            return obj is IntField field &&
-                   this.Value == field.Value;
-        }
-
-        public override int GetHashCode()
-        {
-            return this.Value;
-        }
     }
 }

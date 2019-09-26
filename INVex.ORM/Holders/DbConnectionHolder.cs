@@ -10,6 +10,8 @@ namespace INVex.ORM.Holders
     public class DbConnectionHolder : SingletonBase<DbConnectionHolder>
     {
         private IDbConnection connection;
+        public IDialect Dialect { get; set; }
+
 
         public void CreateConnection(IDbConnection connection)
         {

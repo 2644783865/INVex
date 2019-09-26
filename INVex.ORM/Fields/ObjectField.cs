@@ -45,7 +45,7 @@ namespace INVex.ORM.Fields
 
         public virtual void ForceSet(object value)
         {
-            this.Value = value;
+            this._value = value;
         }
 
         public virtual T GetValue<T>()
@@ -54,23 +54,11 @@ namespace INVex.ORM.Fields
             {
                 return (T)this.Value;
             }
-            catch
+            catch (Exception ex)
             {
                 throw new Exception("Failed to cast type");
             }
         }
-
-        public static bool operator ==(ObjectField a, ObjectField b)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool operator !=(ObjectField a, ObjectField b)
-        {
-            throw new NotImplementedException();
-        }
-
-
 
         public virtual void Pack(BinaryWriter writer)
         {
@@ -78,22 +66,6 @@ namespace INVex.ORM.Fields
         }
 
         public virtual void Unpack(BinaryReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is ObjectField field &&
-                   EqualityComparer<object>.Default.Equals(this._value, field._value);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(this._value);
-        }
-
-        public virtual bool Equals(IBaseField other)
         {
             throw new NotImplementedException();
         }

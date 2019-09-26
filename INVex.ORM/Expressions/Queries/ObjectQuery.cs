@@ -1,90 +1,162 @@
 ﻿using INVex.ORM.DataBase.Common;
 using INVex.ORM.Expressions.Base;
+using INVex.ORM.Expressions.Modify;
+using INVex.ORM.Expressions.Objects;
 using INVex.ORM.Holders;
 using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace INVex.ORM.Expressions.Queries
 {
     public class ObjectQuery : BaseQuery
     {
-        public override string QueryString { get; protected set; }
-        public override bool NeedTransaction { get; set; }
         public override Dictionary<string, object> QueryParameters { get; set; }
+        public override string QueryString { get; protected set; }
+        public override bool NeedTransaction { get; set; } = false;
 
-        public ICriteria Criteria { get; set; } = null;
+        public int Top { get; set; }
+        public OrderType OrderType { get; set; } = OrderType.DESC;
 
 
-        public List<IAttributePath> RequiredAttributes { get; set; } = new List<IAttributePath>();
-        
+        public List<IAttributePath> ReturnedAttributes { get; set; } = new List<IAttributePath>();
+        public IAttributePath OrderBy { get; set; }
 
-        private IObjectInstance modelInstance;
+
+        private IAttributeModel orderByAttribute;
+        private IObjectInstance ownerInstance;
+        private ICriteria _criteria = null;
+        public ICriteria Criteria
+        {
+            get
+            {
+                return this._criteria;
+            }
+            set
+            {
+                this._criteria = value;
+                this._criteria.SetOwner(this.ownerInstance);
+            }
+        }
+
 
         public ObjectQuery(string modelName)
         {
-            this.modelInstance = ObjectModelsHolder.Current.Holder.CreateInstance(modelName);
-        }
-
-        public ObjectQuery(IObjectInstance instance)
-        {
-            this.modelInstance = instance;
+            this.ownerInstance = ObjectModelsHolder.Current.Holder.CreateInstance(modelName);
         }
 
         protected virtual void ParseQuery()
         {
-            if(this.RequiredAttributes.Count > 0)
+            if (this.ReturnedAttributes.Count > 0)
             {
-                foreach(IAttributePath path in this.RequiredAttributes)
+                foreach (IAttributePath path in this.ReturnedAttributes)
                 {
-                    this.modelInstance.AddRequiredAttribute(path);
+                    this.ownerInstance.AddRequiredAttribute(path);
                 }
             }
 
-            string selectStmnt = string.Empty;
-            string attrsString = string.Empty;
-            string joins = string.Empty;
-            string whereStmnt;
+            #region WHERE
+            StringBuilder whereStmnt = new StringBuilder();
 
-            int tableJoins = 0;
-
-            foreach(KeyValuePair<IAttributePath, IAttributeModel> pair in this.modelInstance.RequiredAttributes)
+            // First, parse where statment
+            if(this._criteria != null)
             {
-                foreach (IAttributeStep step in pair.Key.Steps)
-                {
-                    if(step.Attribute.Mapping == null)
-                    {
-                        #warning Нужно подумать
-                        continue;
-                    }
+                SqlComputedString computedString = this._criteria.ToSql();
 
+                if (!string.IsNullOrEmpty(computedString.Query))
+                {
+                    this.QueryParameters = computedString.SqlParameters;
+
+                    whereStmnt.AppendFormat("WHERE {0}", computedString.Query);
+                }
+            }
+
+            #endregion
+
+            StringBuilder showedColumns = new StringBuilder();
+
+            #region Joins
+            StringBuilder joinStmnt = new StringBuilder();
+
+            int tableNum = 0;
+
+            foreach (KeyValuePair<IAttributePath, IAttributeModel> pair in this.ownerInstance.RequiredAttributes)
+            {
+                foreach(IAttributeStep step in pair.Key.Steps)
+                {
                     if(step.Attribute is IReferenceAttribute)
                     {
                         IReferenceAttribute refAttr = (IReferenceAttribute)step.Attribute;
-                        tableJoins++;
-                        string prefix = "t" + tableJoins;
-                        joins += string.Format("LEFT JOIN {0} AS {1} ON {2} = {3}",
-                            refAttr.Field.Reference.Table.FullName, 
-                            prefix, 
-                            prefix + "." + step.Attribute.Mapping.ColumnName,
+
+                        tableNum++;
+
+                        string joinTableName = "t" + tableNum;
+
+                        joinStmnt.AppendFormat("LEFT JOIN {0} AS {1} ON {2}={3}",
+                            refAttr.Field.Reference.Table.FullName,
+                            joinTableName,
+                            joinTableName + "." + step.Attribute.Mapping.ColumnName,
                             refAttr.Field.Reference.PrimaryKey.Mapping.ColumnName
                             );
-                        attrsString += string.Format("[{0}].[{1}],", prefix, step.Attribute.Owner.PrimaryKey.Mapping.ColumnName);
+                        showedColumns.AppendFormat("[{0}].[{1}],", joinTableName, step.Attribute.Owner.PrimaryKey.Mapping.ColumnName);
                     }
                     else
                     {
-                        attrsString += string.Format("[{0}],", step.Attribute.Mapping.ColumnName);
+                        showedColumns.AppendFormat("[{0}],", step.Attribute.Mapping.ColumnName);
                     }
                 }
             }
 
-            if(this.Criteria != null)
+            #endregion
+
+            #region Order by
+
+            StringBuilder orderStmnt = new StringBuilder();
+
+            if(this.OrderBy != null)
             {
-                this.Criteria.ToSql();
+                this.orderByAttribute = PathProcessor.ProcessPath(this.OrderBy, this.ownerInstance);
+
+                string orderType = string.Empty;
+
+                switch (this.OrderType)
+                {
+                    case OrderType.DESC:
+                        orderType = "DESC";
+                        break;
+                    case OrderType.ASC:
+                        orderType = "ASC";
+                        break;
+                }
+
+                orderStmnt.AppendFormat("ORDER BY {0}.{1} {2}", this.orderByAttribute.Owner.Table.FullName, this.orderByAttribute.Mapping.ColumnName, orderType);
             }
 
-            selectStmnt = string.Format("SELECT {0} FROM {1} {2}", attrsString.TrimEnd(','), this.modelInstance.Table.FullName, joins);
-            this.QueryString = selectStmnt;
+            #endregion
+
+            #region Top
+
+            string topStmnt = this.Top == 0 ? string.Empty : string.Format("TOP {0}", this.Top);
+
+            #endregion
+
+            #region SELECT
+
+            StringBuilder selectStmnt = new StringBuilder();
+            selectStmnt.AppendFormat("SELECT {0} {1} FROM {2} {3} {4} {5}",
+                topStmnt,
+                showedColumns.ToString().TrimEnd(','),
+                this.ownerInstance.Table.FullName,
+                joinStmnt.ToString(),
+                whereStmnt.ToString(),
+                orderStmnt.ToString()
+                );
+
+            this.QueryString = selectStmnt.ToString();
+
+            #endregion
         }
 
         public new List<IObjectInstance> Execute()
@@ -96,7 +168,7 @@ namespace INVex.ORM.Expressions.Queries
 
             foreach (RowResult row in executionResult.Rows)
             {
-                IObjectInstance objectInstance = ObjectModelsHolder.Current.Holder.CreateInstance(this.modelInstance.Model.Name);
+                IObjectInstance objectInstance = ObjectModelsHolder.Current.Holder.CreateInstance(this.ownerInstance.Model.Name);
 
                 foreach (string columnName in row.Keys)
                 {
@@ -117,11 +189,11 @@ namespace INVex.ORM.Expressions.Queries
             List<T> objectInstances = new List<T>();
             ExecutionResult executionResult = (ExecutionResult)base.Execute();
 
-            foreach(RowResult row in executionResult.Rows)
+            foreach (RowResult row in executionResult.Rows)
             {
-                T objectInstance = (T)ObjectModelsHolder.Current.Holder.CreateInstance(this.modelInstance.Model.Name);
+                T objectInstance = (T)ObjectModelsHolder.Current.Holder.CreateInstance(this.ownerInstance.Model.Name);
 
-                foreach(string columnName in row.Keys)
+                foreach (string columnName in row.Keys)
                 {
                     objectInstance.Attributes[objectInstance.GetAttributeByMappingColumn(columnName).Name].Field.ForceSet(row[columnName]);
                 }

@@ -9,4 +9,20 @@ namespace INVex.ORM.Expressions.Base
         Equal,
         NotEqual
     }
+
+    public static class OperatorProcessor
+    {
+        public static string OperatorToString(OperatorType operatorType)
+        {
+            switch (operatorType)
+            {
+                case OperatorType.Equal:
+                    return "=";
+                case OperatorType.NotEqual:
+                    return "<>";
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+    }
 }

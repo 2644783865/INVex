@@ -22,6 +22,11 @@ namespace INVex.ORM.Objects.Attributes
                 throw new Exception("Attribute should have some type (see 'ValueType' attribute)");
             }
 
+            if (attributeXElement.Root.Attribute("IsIdentity") != null)
+            {
+                this.CustomFlags.Add("IsIdentity", attributeXElement.Root.Attribute("IsIdentity").Value);
+            }
+
             this.ValueType = attributeXElement.Root.Attribute("ValueType").Value;
         }
 

@@ -2,6 +2,7 @@
 using INVex.ORM.DataBase.SQLServer;
 using INVex.ORM.Expressions.Base;
 using INVex.ORM.Expressions.Logical;
+using INVex.ORM.Expressions.Modify;
 using INVex.ORM.Expressions.Queries;
 using INVex.ORM.Holders;
 using INVex.ORM.Holders.Modify;
@@ -30,18 +31,18 @@ namespace DevTestServerApp
 
             ObjectQuery qr = new ObjectQuery("ChatMessage")
             {
-                RequiredAttributes = new List<IAttributePath>
+                ReturnedAttributes = new List<IAttributePath>
                 {
-                    new APath(new AStep("Message")),
                     new APath(new AStep("Name")),
                     new APath(new AStep("ChatId"))
-                }
+                },
+                OrderBy = new APath(new AStep("Time"))
             };
             List<IObjectInstance> messages = qr.Execute();
 
             qr = new ObjectQuery(User.ModelName)
             {
-                RequiredAttributes = new List<IAttributePath>
+                ReturnedAttributes = new List<IAttributePath>
                 {
                     new APath(new AStep("Name"))
                 }
@@ -53,23 +54,6 @@ namespace DevTestServerApp
                 Console.WriteLine(singleMessage.GetAttribute("Message").Value);
             }
 
-            bool criteriaResult =
-                new Criteria(
-                    CriteriaType.AND,
-                    new AttributeCondition
-                    (
-                        messages[4].GetAttribute("Name"),
-                        users[0].GetAttribute("Name"),
-                        OperatorType.Equal
-                    ),
-                    new AttributeCondition
-                    (
-                        messages[4].GetAttribute("Message"),
-                        users[0].GetAttribute("Name"),
-                        OperatorType.NotEqual
-                    )
-                ).IsTrue();
-
             users[0].SetAttributeValue("Password", "test");
             users[0].Save();
 
@@ -77,6 +61,19 @@ namespace DevTestServerApp
             test.Guid = Guid.NewGuid();
             test.Name = "TESTNAME";
             test.Save();
+
+            ObjectInstanceXML xmlInst = (ObjectInstanceXML)ObjectInstance.GetInstance("Order", "B77E47AE-8F2E-4C33-9D49-9D8E1C620451");
+
+            bool criteriaResult =
+                new Criteria(
+                    CriteriaType.AND,
+                    new ValueCondition
+                    (
+                        xmlInst.GetAttribute("OrderNum"),
+                        0,
+                        OperatorType.NotEqual
+                    )
+                ).IsTrue();
 
             Console.ReadKey();
         }

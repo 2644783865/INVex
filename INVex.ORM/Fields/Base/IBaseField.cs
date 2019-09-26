@@ -4,7 +4,7 @@ using System.Text;
 
 namespace INVex.ORM.Fields.Base
 {
-    public interface IBaseField : IEquatable<IBaseField>
+    public interface IBaseField 
     {
         object Value { get; }
         bool WasReaded { get; }

@@ -190,6 +190,11 @@ namespace INVex.ORM.Objects
              return ObjectInstance.CreateInstance(model.Name);
         }
 
+        public static IObjectInstance GetInstance(string model, object primaryKey)
+        {
+            return ObjectModelsHolder.Current.Holder.GetInstance(model, primaryKey);
+        }
+
         public static IObjectInstance GetInstance(IObjectModel model, object primaryKey)
         {
             throw new NotImplementedException();

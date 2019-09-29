@@ -1,4 +1,5 @@
-﻿using INVex.ORM.Objects.Attributes.Base;
+﻿using INVex.ORM.Expressions.Objects;
+using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
 using System.Collections.Generic;
 
@@ -19,9 +20,24 @@ namespace INVex.ORM.Objects.Attributes
             }
         }
 
-        public void SetOwner(IObjectInstance instance)
+        public IAttributeModel ProcessElement(IObjectInstance objectInstance)
         {
-            this.OwnerInstance = instance;
+            if(objectInstance == null)
+            {
+                objectInstance = this.OwnerInstance;
+            }
+
+            return PathProcessor.ProcessPath(this, objectInstance);
+        }
+
+        public IAttributeModel ProcessElement()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetOwnerInstance(IObjectInstance objectInstance)
+        {
+            this.OwnerInstance = objectInstance;
         }
     }
 }

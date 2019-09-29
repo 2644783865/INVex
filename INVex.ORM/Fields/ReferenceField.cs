@@ -34,7 +34,6 @@ namespace INVex.ORM.Fields
 
                 if (this.cachedInstance == null)
                 {
-                    //TODO: Доделать
                     this.ReferenceModel = ObjectModelsHolder.Current.Holder.GetModel(this.ReferenceObjectModelName);
                     // base.Value = Object PrimaryKey
                     this.cachedInstance = ObjectModelsHolder.Current.Holder.GetInstance(this.ReferenceModel, base.Value);

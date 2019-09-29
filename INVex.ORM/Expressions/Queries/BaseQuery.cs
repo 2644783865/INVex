@@ -1,4 +1,4 @@
-﻿using INVex.ORM.Expressions.Base;
+﻿using INVex.ORM.Expressions.Queries.Base;
 using INVex.ORM.Holders;
 using System;
 using System.Collections.Generic;

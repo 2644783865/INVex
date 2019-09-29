@@ -15,11 +15,11 @@ namespace INVex.ORM.Expressions.Logical
         private object value;
         private OperatorType operatorType;
 
-        private IAttributePath attributePath;
+        private IPathElement attributePath;
 
         private string attributeName = string.Empty;
 
-        public ValueCondition(IAttributePath attributePath, object value, OperatorType operatorType)
+        public ValueCondition(IPathElement attributePath, object value, OperatorType operatorType)
         {
             this.attributePath = attributePath;
             this.value = value;
@@ -60,7 +60,7 @@ namespace INVex.ORM.Expressions.Logical
             {
                 if(this.attributePath != null)
                 {
-                    this.attributeModel = PathProcessor.ProcessPath(this.attributePath, this.Owner);
+                    this.attributeModel = this.attributePath.ProcessElement(this.Owner);
                 }
                 else
                 {

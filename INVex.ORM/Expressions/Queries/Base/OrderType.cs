@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace INVex.ORM.Expressions.Base
+namespace INVex.ORM.Expressions.Queries.Base
 {
     public enum OrderType
     {

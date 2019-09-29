@@ -1,6 +1,6 @@
 ﻿using INVex.Common.Common;
 using INVex.ORM.DataBase.Base;
-using INVex.ORM.Expressions.Base;
+using INVex.ORM.Expressions.Queries.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;

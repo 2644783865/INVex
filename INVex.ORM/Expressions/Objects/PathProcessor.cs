@@ -12,25 +12,27 @@ namespace INVex.ORM.Expressions.Objects
             return PathProcessor.ProcessPath(fullStepsStack, ownerInstance);
         }
 
+
         private static IAttributeModel ProcessPath(List<IAttributeStep> steps, IObjectInstance ownerInstance)
         {
             foreach (IAttributeStep step in steps)
             {
                 step.Attribute = ownerInstance.GetAttribute(step.Name);
-                IAttributeModel model = step.Attribute;
+                IAttributeModel attribute = step.Attribute;
 
-                if (steps.Count > 1 && model is IReferenceAttribute)
+                if (steps.Count > 1 && attribute is IReferenceAttribute)
                 {
+                    //TODO: rewrite this
                     List<IAttributeStep> tempSteps = new List<IAttributeStep>();
                     for(int i = steps.IndexOf(step)+1; i < steps.Count; i++)
                     {
                         tempSteps.Add(steps[i]);
                     }
-                    return PathProcessor.ProcessPath(tempSteps, ((IReferenceAttribute)model).Field.Reference);
+                    return PathProcessor.ProcessPath(tempSteps, ((IReferenceAttribute)attribute).Field.Reference);
                 }
                 else
                 {
-                    return model;
+                    return attribute;
                 }
             }
             return null;

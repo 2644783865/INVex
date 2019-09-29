@@ -1,4 +1,4 @@
-﻿using INVex.ORM.Expressions.Base;
+﻿using INVex.ORM.Expressions.Queries.Base;
 
 namespace INVex.ORM.DataBase.Base
 {

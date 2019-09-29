@@ -6,9 +6,8 @@ using System.Text;
 
 namespace INVex.ORM.Objects.Attributes.Base
 {
-    public interface IAttributePath
+    public interface IAttributePath : IPathElement
     {
         List<IAttributeStep> Steps { get; }
-        IObjectInstance OwnerInstance { get; }
     }
 }

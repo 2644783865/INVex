@@ -34,7 +34,12 @@ namespace INVex.ORM.Objects
         /// <summary>
         /// Attributes to read from database first
         /// </summary>
-        public Dictionary<IAttributePath, IAttributeModel> RequiredAttributes { get; protected set; } = new Dictionary<IAttributePath, IAttributeModel>();
+        // TODO: ПЕРЕПИСАТЬ. ХРАНИТЬ ТОЛЬКО ПУТИ ИЛИ ТОЛЬКО АТРИБУТЫ.
+//#error ПЕРЕПИСАТЬ.
+        //public Dictionary<IAttributePath, IAttributeModel> RequiredAttributes { get; protected set; } = new Dictionary<IAttributePath, IAttributeModel>();
+
+        public List<IPathElement> RequiredAttributes { get; protected set; } = new List<IPathElement>();
+
         #endregion
 
         public bool IsInherited { get; protected set; }
@@ -129,13 +134,14 @@ namespace INVex.ORM.Objects
             {
                 throw new Exception("Try to add unknown attribute to required");
             }
-            this.AddRequiredAttribute(new APath(new AStep(attributeModel.Name)));
+            // HACK: Это ужасно. Добавление в необходимые для зачитки с NULL
+            this.RequiredAttributes.Add(new AStep(attributeModel.Name));
         }
 
         public virtual void AddRequiredAttribute(IAttributePath path)
         {
-            IAttributeModel tempModel = this.GetAttribute(path);
-            this.RequiredAttributes.Add(path, tempModel);
+            //IAttributeModel tempModel = this.GetAttribute(path);
+            this.RequiredAttributes.Add(path);
         }
 
         /// <summary>

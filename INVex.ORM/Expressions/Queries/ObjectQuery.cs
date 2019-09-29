@@ -2,6 +2,7 @@
 using INVex.ORM.Expressions.Base;
 using INVex.ORM.Expressions.Modify;
 using INVex.ORM.Expressions.Objects;
+using INVex.ORM.Expressions.Queries.Base;
 using INVex.ORM.Holders;
 using INVex.ORM.Objects.Attributes.Base;
 using INVex.ORM.Objects.Base;
@@ -21,8 +22,8 @@ namespace INVex.ORM.Expressions.Queries
         public OrderType OrderType { get; set; } = OrderType.DESC;
 
 
-        public List<IAttributePath> ReturnedAttributes { get; set; } = new List<IAttributePath>();
-        public IAttributePath OrderBy { get; set; }
+        public List<IPathElement> ReturnedAttributes { get; set; } = new List<IPathElement>();
+        public IPathElement OrderBy { get; set; }
 
 
         private IAttributeModel orderByAttribute;
@@ -51,9 +52,9 @@ namespace INVex.ORM.Expressions.Queries
         {
             if (this.ReturnedAttributes.Count > 0)
             {
-                foreach (IAttributePath path in this.ReturnedAttributes)
+                foreach (IPathElement path in this.ReturnedAttributes)
                 {
-                    this.ownerInstance.AddRequiredAttribute(path);
+                    this.ownerInstance.AddRequiredAttribute(path.ProcessElement(this.ownerInstance));
                 }
             }
 
@@ -82,30 +83,33 @@ namespace INVex.ORM.Expressions.Queries
 
             int tableNum = 0;
 
-            foreach (KeyValuePair<IAttributePath, IAttributeModel> pair in this.ownerInstance.RequiredAttributes)
+            foreach (IPathElement pathEl in this.ownerInstance.RequiredAttributes)
             {
-                foreach(IAttributeStep step in pair.Key.Steps)
+                if(pathEl is IAttributePath)
                 {
-                    if(step.Attribute is IReferenceAttribute)
+                    foreach (IAttributeStep step in ((IAttributePath)pathEl).Steps)
                     {
-                        IReferenceAttribute refAttr = (IReferenceAttribute)step.Attribute;
+                        if (step.Attribute is IReferenceAttribute)
+                        {
+                            IReferenceAttribute refAttr = (IReferenceAttribute)step.Attribute;
 
-                        tableNum++;
+                            tableNum++;
 
-                        string joinTableName = "t" + tableNum;
+                            string joinTableName = "t" + tableNum;
 
-                        joinStmnt.AppendFormat("LEFT JOIN {0} AS {1} ON {2}={3}",
-                            refAttr.Field.Reference.Table.FullName,
-                            joinTableName,
-                            joinTableName + "." + step.Attribute.Mapping.ColumnName,
-                            refAttr.Field.Reference.PrimaryKey.Mapping.ColumnName
-                            );
-                        showedColumns.AppendFormat("[{0}].[{1}],", joinTableName, step.Attribute.Owner.PrimaryKey.Mapping.ColumnName);
+                            joinStmnt.AppendFormat("LEFT JOIN {0} AS {1} ON {2}={3}",
+                                refAttr.Field.Reference.Table.FullName,
+                                joinTableName,
+                                joinTableName + "." + step.Attribute.Mapping.ColumnName,
+                                refAttr.Field.Reference.PrimaryKey.Mapping.ColumnName
+                                );
+                            showedColumns.AppendFormat("[{0}].[{1}],", joinTableName, step.Attribute.Owner.PrimaryKey.Mapping.ColumnName);
+                        }
                     }
-                    else
-                    {
-                        showedColumns.AppendFormat("[{0}],", step.Attribute.Mapping.ColumnName);
-                    }
+                }                
+                else
+                {
+                    showedColumns.AppendFormat("[{0}],", pathEl.ProcessElement(this.ownerInstance).Mapping.ColumnName);
                 }
             }
 
@@ -117,7 +121,7 @@ namespace INVex.ORM.Expressions.Queries
 
             if(this.OrderBy != null)
             {
-                this.orderByAttribute = PathProcessor.ProcessPath(this.OrderBy, this.ownerInstance);
+                this.orderByAttribute = this.OrderBy.ProcessElement(this.ownerInstance);
 
                 string orderType = string.Empty;
 

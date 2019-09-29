@@ -29,38 +29,41 @@ namespace DevTestServerApp
             ObjectModelsHolder.Current.SetupHolder(new DefaultObjectsHolder("def"));
             ObjectModelsHolder.Current.Holder.LoadModels();
 
-            ObjectQuery qr = new ObjectQuery("ChatMessage")
+            ObjectQuery messagesQr = new ObjectQuery(ChatMessage._Name)
             {
-                ReturnedAttributes = new List<IAttributePath>
+                ReturnedAttributes = new List<IPathElement>
                 {
-                    new APath(new AStep("Name")),
-                    new APath(new AStep("ChatId"))
+                    ChatMessage.sName,
+                    ChatMessage.sChatId
                 },
-                OrderBy = new APath(new AStep("Time"))
+                OrderBy = ChatMessage.sTime,
+                Criteria = new Criteria(
+                        new ValueCondition(ChatMessage.sName, "114", OperatorType.NotEqual)
+                    )
             };
-            List<IObjectInstance> messages = qr.Execute();
+            List<ChatMessage> messages = messagesQr.Execute<ChatMessage>();
 
-            qr = new ObjectQuery(User.ModelName)
-            {
-                ReturnedAttributes = new List<IAttributePath>
-                {
-                    new APath(new AStep("Name"))
-                }
-            };
-            List<User> users = qr.Execute<User>();
+            //qr = new ObjectQuery(User.ModelName)
+            //{
+            //    ReturnedAttributes = new List<IAttributePath>
+            //    {
+            //        new AStep("Name")
+            //    }
+            //};
+            //List<User> users = qr.Execute<User>();
 
             foreach(IObjectInstance singleMessage in messages)
             {
                 Console.WriteLine(singleMessage.GetAttribute("Message").Value);
             }
 
-            users[0].SetAttributeValue("Password", "test");
-            users[0].Save();
+            //users[0].SetAttributeValue("Password", "test");
+            //users[0].Save();
 
-            User test = (User)ObjectInstance.CreateInstance(users[0].Model);
-            test.Guid = Guid.NewGuid();
-            test.Name = "TESTNAME";
-            test.Save();
+            //User test = (User)ObjectInstance.CreateInstance(users[0].Model);
+            //test.Guid = Guid.NewGuid();
+            //test.Name = "TESTNAME";
+            //test.Save();
 
             ObjectInstanceXML xmlInst = (ObjectInstanceXML)ObjectInstance.GetInstance("Order", "B77E47AE-8F2E-4C33-9D49-9D8E1C620451");
 

@@ -29,19 +29,15 @@ namespace DevTestServerApp
             ObjectModelsHolder.Current.SetupHolder(new DefaultObjectsHolder("def"));
             ObjectModelsHolder.Current.Holder.LoadModels();
 
-            ObjectQuery messagesQr = new ObjectQuery(ChatMessage._Name)
+            ObjectQuery messagesQr = new ObjectQuery("ChatMessage")
             {
                 ReturnedAttributes = new List<IPathElement>
                 {
-                    ChatMessage.sName,
-                    ChatMessage.sChatId
-                },
-                OrderBy = ChatMessage.sTime,
-                Criteria = new Criteria(
-                        new ValueCondition(ChatMessage.sName, "114", OperatorType.NotEqual)
-                    )
+                    new AStep("Name"),
+                    new AStep("CharId")
+                }
             };
-            List<ChatMessage> messages = messagesQr.Execute<ChatMessage>();
+            List<IObjectInstance> messages = messagesQr.Execute();
 
             //qr = new ObjectQuery(User.ModelName)
             //{
